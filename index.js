@@ -1,4 +1,4 @@
+const config = require('./config.json')
 const slack = require('slack')
 
-slack.api.test({hello: 'world'}, console.log)
-
+slack.channels.list({token: config['slack-token']}, console.log)
