@@ -1,4 +1,13 @@
 const config = require('./config.json')
 const slack = require('slack')
 
-slack.channels.list({token: config['slack-token']}, console.log)
+slack.chat.postMessage({
+  token: config['slack-token'],
+  channel: '#ypns',
+  username: 'YPNS',
+  icon_emoji: ':ypns:',
+  text: 'XXX became online'
+}, function (err, data) {
+  console.log('err', err)
+  console.log('data', data)
+})
