@@ -9,6 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "forever": "^0.15.2",
     "slack": "^7.5.7"
   }
 }
