@@ -1,3 +1,6 @@
 {
-  "slack-token": "XXXX-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXX"
+  "token": "XXXX-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXX",
+  "channel": "#ypns",
+  "username": "YPNS",
+  "icon_emoji": ":ypns:"
 }
