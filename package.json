@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "forever": "forever start -c 'npm start' -o ~/.forever/ypns.log -e ~/.forever/ypns.error -a  --spinSleepTime 1000 --minUptime 1000 ./",
+    "stop": "forever stopall",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
