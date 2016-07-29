@@ -46,11 +46,10 @@ function crawlOnlineFriendList(onError) {
       icon_emoji: config.icon_emoji,
       text: formatFriends(friends)
     }, function (err, data) {
-      if (err || !data.ok) {
+      if (err) {
         return Promise.reject([
           'ERROR: Failed to post a message to Slack.',
-          err,
-          data
+          err
         ])
       }
     })
