@@ -58,8 +58,8 @@ function formatFriends(friends) {
     const oldMode = 'offline'  // TODO
     const modeTrans = oldMode + '->' + f.mode
     const phrase = phraseTable[modeTrans]
-    if (phrase) {
-      return f.mii_name + 'が' + phrase
+    if (phrase !== false) {
+      return f.mii_name + 'が' + (phrase || modeTrans)
     } else {
       return false
     }
