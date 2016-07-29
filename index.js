@@ -115,8 +115,10 @@ const phraseTable = {
 
 crawlOnlineFriendList()
 .catch(function (error) {
-  if (error instanceof Error) {
-    // Ignore script-level errors such as syntax error.
+  if (error instanceof SyntaxError ||
+      error instanceof TypeError ||
+      error instanceof ReferenceError) {
+    // Theses errors do not mean network/content issues.
     return Promise.reject(error)
   } else {
     return signIn().then(function () {
