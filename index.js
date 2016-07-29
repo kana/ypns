@@ -12,6 +12,10 @@ fs.appendFileSync(cookiePath, '', {mode: 0o600})
 const jar = _request.jar(new FileCookieStore(cookiePath))
 const request = _request.defaults({jar: jar, followAllRedirects: true})
 
+function defaultOnError(error) {
+  console.log('ERROR', error)
+}
+
 function visitTopPage() {
   console.log('INFO', 'Opening the top page')
   request('https://splatoon.nintendo.net/', function (error, response, body) {
@@ -71,9 +75,21 @@ function tryLogin(form) {
   })
 }
 
-function crawlOnlineFriendList($) {
+function crawlOnlineFriendList(onError) {
   console.log('INFO', 'Crawling')
-  console.log('TODO')
+  request('https://splatoon.nintendo.net/friend_list/index.json', function (error, response, body) {
+    if (error) {
+      (onError || defaultOnError)(error)
+      return
+    }
+
+    var data = JSON.parse(body)
+    console.log('TODO', data)
+  })
 }
 
-visitTopPage()
+crawlOnlineFriendList(function () {
+  signIn(function () {
+    crawlOnlineFriendList()
+  })
+})
