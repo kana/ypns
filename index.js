@@ -38,6 +38,7 @@ function signIn() {
 function crawlOnlineFriendList(onError) {
   console.log('INFO', 'Crawling')
   return request('https://splatoon.nintendo.net/friend_list/index.json').then(function (body) {
+    console.log('INFO', 'Posting')
     const friends = JSON.parse(body)
     slack.chat.postMessage({
       token: config.token,
@@ -52,6 +53,7 @@ function crawlOnlineFriendList(onError) {
           err
         ])
       }
+      console.log('INFO', 'Done')
     })
   })
 }
