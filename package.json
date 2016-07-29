@@ -15,6 +15,7 @@
     "cheerio": "^0.20.0",
     "forever": "^0.15.2",
     "request": "^2.74.0",
+    "request-promise": "^4.0.2",
     "slack": "^7.5.7",
     "tough-cookie-filestore": "0.0.1"
   }
