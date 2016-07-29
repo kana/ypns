@@ -34,9 +34,73 @@ function signIn() {
 function crawlOnlineFriendList(onError) {
   console.log('INFO', 'Crawling')
   return request('https://splatoon.nintendo.net/friend_list/index.json').then(function (body) {
-    var data = JSON.parse(body)
-    console.log('TODO', data)
+    const friends = JSON.parse(body)
+    slack.chat.postMessage({
+      token: config.token,
+      channel: config.channel,
+      username: config.username,
+      icon_emoji: config.icon_emoji,
+      text: formatFriends(friends)
+    }, function (err, data) {
+      console.log('ERROR', 'Failed to post a message to Slack.')
+      console.log('err', err)
+      console.log('data', data)
+    })
   })
+}
+
+function formatFriends(friends) {
+  return friends.map(function (f) {
+    const oldMode = 'offline'  // TODO
+    const modeTrans = oldMode + '->' + f.mode
+    const phrase = phraseTable[modeTrans]
+    if (phrase) {
+      return f.mii_name + 'が' + phrase
+    } else {
+      return false
+    }
+  }).filter(function (text) {
+    return text
+  }).join('\n')
+}
+
+const phraseTable = {
+  'regular->regular': false,
+  'regular->ranked': 'ガチマッチを始めました',
+  'regular->private': 'プライベートマッチを始めました',
+  'regular->play': '広場に戻りました',
+  'regular->online': 'Splatoonを終了しました',
+  'regular->none': 'オフラインになりました',
+  'ranked->regular': 'レギュラーマッチを始めました',
+  'ranked->ranked': false,
+  'ranked->private': 'プライベートマッチを始めました',
+  'ranked->play': '広場に戻りました',
+  'ranked->online': 'Splatoonを終了しました',
+  'ranked->offline': 'オフラインになりました',
+  'private->regular': 'レギュラーマッチを始めました',
+  'private->ranked': 'ガチマッチを始めました',
+  'private->private': false,
+  'private->play': '広場に戻りました',
+  'private->online': 'Splatoonを終了しました',
+  'private->offline': 'オフラインになりました',
+  'play->regular': 'レギュラーマッチを始めました',
+  'play->ranked': 'ガチマッチを始めました',
+  'play->private': 'プライベートマッチを始めました',
+  'play->play': false,
+  'play->online': 'Splatoonを終了しました',
+  'play->offline': 'オフラインになりました',
+  'online->regular': 'レギュラーマッチを始めました',
+  'online->ranked': 'ガチマッチを始めました',
+  'online->private': 'プライベートマッチを始めました',
+  'online->play': 'Splatoonを起動しました',
+  'online->online': false,
+  'online->offline': 'オフラインになりました',
+  'offline->regular': 'レギュラーマッチをしています',
+  'offline->ranked': 'ガチマッチをしています',
+  'offline->private': 'プライベートマッチをしています',
+  'offline->play': 'Splatoonを起動しました',
+  'offline->online': 'オンラインになりました',
+  'offline->offline': false,
 }
 
 crawlOnlineFriendList()
