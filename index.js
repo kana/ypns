@@ -17,6 +17,10 @@ function signIn() {
   return request('https://splatoon.nintendo.net/users/auth/nintendo').then(function (body) {
     const $ = cheerio.load(body)
     const form = $('input[value="https://splatoon.nintendo.net/users/auth/nintendo/callback"]').closest('form')
+    if (form.length == 0) {
+      return Promise.reject('Invalid HTML: ' + body)
+    }
+
     const map = {}
     form.serializeArray().forEach(function (pair) {
       map[pair.name] = pair.value
