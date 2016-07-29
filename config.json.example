@@ -2,5 +2,7 @@
   "token": "XXXX-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXX",
   "channel": "#ypns",
   "username": "YPNS",
-  "icon_emoji": ":ypns:"
+  "icon_emoji": ":ypns:",
+  "nnidUsername": "xxx",
+  "nnidPassword": "xxx"
 }

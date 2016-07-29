@@ -10,7 +10,7 @@ const cookiePath = 'cookie.json'
 // File given to FileCookieStore must exist.
 fs.appendFileSync(cookiePath, '', {mode: 0o600})
 const jar = _request.jar(new FileCookieStore(cookiePath))
-const request = _request.defaults({jar: jar})
+const request = _request.defaults({jar: jar, followAllRedirects: true})
 
 function visitTopPage() {
   request('https://splatoon.nintendo.net/', function (error, response, body) {
@@ -47,7 +47,24 @@ function visitLoginPage() {
 }
 
 function tryLogin(form) {
-  console.log('TODO')
+  const map = {}
+  form.serializeArray().forEach(function (pair) {
+    map[pair.name] = pair.value
+  })
+  map.username = config.nnidUsername
+  map.password = config.nnidPassword
+
+  request.post({
+    url: form.attr('action'),
+    form: map
+  }, function (error, response, body) {
+    if (error) {
+      console.log(error)
+      return
+    }
+
+    crawlOnlineFriendList(cheerio.load(body))
+  })
 }
 
 function crawlOnlineFriendList($) {
