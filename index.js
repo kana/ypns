@@ -46,9 +46,13 @@ function crawlOnlineFriendList(onError) {
       icon_emoji: config.icon_emoji,
       text: formatFriends(friends)
     }, function (err, data) {
-      console.log('ERROR', 'Failed to post a message to Slack.')
-      console.log('err', err)
-      console.log('data', data)
+      if (err || !data.ok) {
+        return Promise.reject([
+          'ERROR: Failed to post a message to Slack.',
+          err,
+          data
+        ])
+      }
     })
   })
 }
