@@ -12,14 +12,46 @@ fs.appendFileSync(cookiePath, '', {mode: 0o600})
 const jar = _request.jar(new FileCookieStore(cookiePath))
 const request = _request.defaults({jar: jar})
 
-request('https://splatoon.nintendo.net/', function (error, response, body) {
-  if (error) {
-    console.log(error)
-    return
-  }
+function visitTopPage() {
+  request('https://splatoon.nintendo.net/', function (error, response, body) {
+    if (error) {
+      console.log(error)
+      return
+    }
 
-  const $ = cheerio.load(body)
-  const loginButton = $('.nnid-login-btn')
-  console.log(loginButton.length)
-  console.log(loginButton.attr('href'))
-})
+    const $ = cheerio.load(body)
+    const loginButton = $('.nnid-login-btn')
+    if (loginButton.length) {
+      visitLoginPage()
+    } else {
+      crawlOnlineFriendList($)
+    }
+  })
+}
+
+function visitLoginPage() {
+  request('https://splatoon.nintendo.net/users/auth/nintendo', function (error, response, body) {
+    if (error) {
+      console.log(error)
+      return
+    }
+
+    const $ = cheerio.load(body)
+    const form = $('input[value="https://splatoon.nintendo.net/users/auth/nintendo/callback"]').closest('form')
+    if (form.length) {
+      tryLogin(form)
+    } else {
+      console.log('Error: Something wrong on log-in page')
+    }
+  })
+}
+
+function tryLogin(form) {
+  console.log('TODO')
+}
+
+function crawlOnlineFriendList($) {
+  console.log('TODO')
+}
+
+visitTopPage()
