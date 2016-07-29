@@ -13,6 +13,7 @@ const jar = _request.jar(new FileCookieStore(cookiePath))
 const request = _request.defaults({jar: jar, followAllRedirects: true})
 
 function visitTopPage() {
+  console.log('INFO', 'Opening the top page')
   request('https://splatoon.nintendo.net/', function (error, response, body) {
     if (error) {
       console.log(error)
@@ -24,12 +25,14 @@ function visitTopPage() {
     if (loginButton.length) {
       visitLoginPage()
     } else {
+      console.log(body)
       crawlOnlineFriendList($)
     }
   })
 }
 
 function visitLoginPage() {
+  console.log('INFO', 'Opening the log-in page')
   request('https://splatoon.nintendo.net/users/auth/nintendo', function (error, response, body) {
     if (error) {
       console.log(error)
@@ -47,6 +50,7 @@ function visitLoginPage() {
 }
 
 function tryLogin(form) {
+  console.log('INFO', 'Logging in')
   const map = {}
   form.serializeArray().forEach(function (pair) {
     map[pair.name] = pair.value
@@ -68,6 +72,7 @@ function tryLogin(form) {
 }
 
 function crawlOnlineFriendList($) {
+  console.log('INFO', 'Crawling')
   console.log('TODO')
 }
 
