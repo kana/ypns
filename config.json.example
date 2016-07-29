@@ -3,6 +3,9 @@
   "channel": "#ypns",
   "username": "YPNS",
   "icon_emoji": ":ypns:",
+  "hotFriends": [
+    "magic hash"
+  ],
   "nnidUsername": "xxx",
   "nnidPassword": "xxx"
 }

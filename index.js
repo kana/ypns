@@ -60,7 +60,11 @@ function crawlOnlineFriendList(onError) {
 }
 
 function formatFriends(friends) {
-  return friends.map(function (f) {
+  const areHotFriendsOnline = friends.some(function (f) {
+    return config.hotFriends.indexOf(f.hashed_id) !== -1
+  })
+
+  return (areHotFriendsOnline ? "<!channel>\n" : "") + friends.map(function (f) {
     const oldMode = 'offline'  // TODO
     const modeTrans = oldMode + '->' + f.mode
     const phrase = phraseTable[modeTrans]
