@@ -117,9 +117,9 @@ crawlOnlineFriendList()
 .catch(function (error) {
   if (error instanceof Error) {
     // Ignore script-level errors such as syntax error.
+    return Promise.reject(error)
   } else {
-    signIn()
-    .then(function () {
+    return signIn().then(function () {
       crawlOnlineFriendList()
     })
   }
