@@ -18,7 +18,8 @@ function signIn() {
     const $ = cheerio.load(body)
     const form = $('input[value="https://splatoon.nintendo.net/users/auth/nintendo/callback"]').closest('form')
     if (form.length == 0) {
-      return Promise.reject('Invalid HTML: ' + body)
+      // return Promise.reject('Invalid HTML: ' + body)
+      return Promise.reject('Invalid HTML')
     }
 
     const map = {}
@@ -113,12 +114,13 @@ const phraseTable = {
 }
 
 crawlOnlineFriendList()
-.catch(function () {
-  signIn()
-  .then(function () {
-    crawlOnlineFriendList()
-    .catch(function (error) {
-      console.log('ERROR', error)
+.catch(function (error) {
+  if (error instanceof Error) {
+    // Ignore script-level errors such as syntax error.
+  } else {
+    signIn()
+    .then(function () {
+      crawlOnlineFriendList()
     })
-  })
+  }
 })
