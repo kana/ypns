@@ -1,5 +1,5 @@
 const FileCookieStore = require('tough-cookie-filestore')
-const _request = require('request')
+const _request = require('request-promise')
 const cheerio = require('cheerio')
 const config = require('./config.json')
 const fs = require('fs')
@@ -77,19 +77,19 @@ function tryLogin(form) {
 
 function crawlOnlineFriendList(onError) {
   console.log('INFO', 'Crawling')
-  request('https://splatoon.nintendo.net/friend_list/index.json', function (error, response, body) {
-    if (error) {
-      (onError || defaultOnError)(error)
-      return
-    }
-
+  return request('https://splatoon.nintendo.net/friend_list/index.json').then(function (body) {
     var data = JSON.parse(body)
     console.log('TODO', data)
   })
 }
 
-crawlOnlineFriendList(function () {
-  signIn(function () {
+crawlOnlineFriendList()
+.catch(function () {
+  signIn()
+  .then(function () {
     crawlOnlineFriendList()
+    .catch(function (error) {
+      console.log('ERROR', error)
+    })
   })
 })
