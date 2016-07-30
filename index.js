@@ -112,11 +112,20 @@ function updateLastFriends(friends) {
   fs.writeFile(lastFriendsPath, JSON.stringify(friends))
 }
 
-function areThereHotFriends(friendStats) {
-  return friendStats.some(function (s) {
-    const f = s[0] || s[1]
-    return config.hotFriends.indexOf(f.hashed_id) !== -1
+function textizeHotFriends(friendStats) {
+  const hotFriends = friendStats.map(function (s) {
+    return s[0]
+  }).filter(function (cf) {
+    return cf && config.hotFriends.indexOf(cf.hashed_id) !== -1
   })
+
+  if (hotFriends.length) {
+    return hotFriends.map(function (cf) {
+      return cf.mii_name
+    }).join('や') + 'と合流チャンス!! <!channel>'
+  } else {
+    return ''
+  }
 }
 
 function formatFriendStats(friendStats) {
@@ -224,7 +233,7 @@ function _postFriendStatsToSlack(friendStats) {
       channel: config.channel,
       username: config.username,
       icon_emoji: config.icon_emoji,
-      text: areThereHotFriends(friendStats) ? '<!channel>' : '',
+      text: textizeHotFriends(friendStats),
       attachments: formatFriendStats(friendStats)
     }, function (err, data) {
       if (err) {
