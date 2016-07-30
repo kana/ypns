@@ -7,7 +7,7 @@ const slack = require('slack')
 
 function existsFile(path) {
   try {
-    fs.accessSync(path, fs.constants.R_OK)
+    fs.accessSync(path, fs.R_OK)
     return true
   } catch (e) {
     return false
