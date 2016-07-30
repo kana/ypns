@@ -5,10 +5,20 @@ const config = require('./config.json')
 const fs = require('fs')
 const slack = require('slack')
 
-const cookiePath = 'cookie.json'
+function existsFile(path) {
+  try {
+    fs.accessSync(path, fs.constants.R_OK)
+    return true
+  } catch (e) {
+    return false
+  }
+}
 
+const cookiePath = 'cookie.json'
 // File given to FileCookieStore must exist.
-fs.appendFileSync(cookiePath, '', {mode: 0o600})
+if (!existsFile(cookiePath)) {
+  fs.appendFileSync(cookiePath, '', {mode: 0o600})
+}
 const jar = _request.jar(new FileCookieStore(cookiePath))
 const request = _request.defaults({jar: jar, followAllRedirects: true})
 
