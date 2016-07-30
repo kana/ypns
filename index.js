@@ -60,16 +60,16 @@ function crawlOnlineFriendList(onError) {
   return request('https://splatoon.nintendo.net/friend_list/index.json').then(function (body) {
     console.log('INFO', 'Posting')
     const currentFriends = JSON.parse(body)
-    const freshFriends = compareFriends(currentFriends, lastFriends)
+    const freshFriendStats = compareFriends(currentFriends, lastFriends)
 
     updateLastFriends(currentFriends)
-    if (freshFriends.length >= 1) {
+    if (freshFriendStats.length >= 1) {
       slack.chat.postMessage({
         token: config.token,
         channel: config.channel,
         username: config.username,
         icon_emoji: config.icon_emoji,
-        text: formatFriends(freshFriends)
+        text: formatFriendStats(freshFriendStats)
       }, function (err, data) {
         if (err) {
           return Promise.reject([
@@ -93,14 +93,14 @@ function compareFriends(currentFriends, lastFriends) {
   currentFriends.forEach(function (cf) {
     const lf = lastFriendMap[cf.hashed_id]
     if (!lf || lf.mode != cf.mode) {
-      resultingFriends.push(cf)
+      resultingFriends.push([cf, lf])
     }
   })
 
   lastFriends.forEach(function (lf) {
     const cf = currentFriendMap[lf.hashed_id]
     if (!cf) {
-      resultingFriends.push(lf)
+      resultingFriends.push([cf, lf])
     }
   })
 
@@ -121,14 +121,17 @@ function updateLastFriends(friends) {
   fs.writeFile(lastFriendsPath, JSON.stringify(friends))
 }
 
-function formatFriends(friends) {
-  const areHotFriendsOnline = friends.some(function (f) {
+function formatFriendStats(friendStats) {
+  const areThereHotFriends = friendStats.some(function (s) {
+    const f = s[0] || s[1]
     return config.hotFriends.indexOf(f.hashed_id) !== -1
   })
 
-  return (areHotFriendsOnline ? "<!channel>\n" : "") + friends.map(function (f) {
-    const oldMode = 'offline'  // TODO
-    const modeTrans = oldMode + '->' + f.mode
+  return (areThereHotFriends ? "<!channel>\n" : "") + friendStats.map(function (s) {
+    const cf = s[0]
+    const lf = s[1]
+    const f = cf || lf
+    const modeTrans = (lf ? lf.mode : 'offline') + '->' + (cf ? cf.mode : 'offline')
     const phrase = phraseTable[modeTrans]
     return f.mii_name + 'が' + (phrase || modeTrans)
   }).join('\n')
@@ -141,7 +144,7 @@ const phraseTable = {
   'regular->private': 'プライベートマッチを始めました',
   'regular->playing': '広場に戻りました',
   'regular->online': 'Splatoonを終了しました',
-  'regular->none': 'オフラインになりました',
+  'regular->offline': 'オフラインになりました',
   'gachi->regular': 'レギュラーマッチを始めました',
   'gachi->gachi': false,
   'gachi->tag': 'タッグマッチを始めました',
@@ -177,10 +180,10 @@ const phraseTable = {
   'online->playing': 'Splatoonを起動しました',
   'online->online': false,
   'online->offline': 'オフラインになりました',
-  'offline->regular': 'レギュラーマッチをしています',
-  'offline->gachi': 'ガチマッチをしています',
-  'offline->tag': 'タッグマッチをしています',
-  'offline->private': 'プライベートマッチをしています',
+  'offline->regular': 'レギュラーマッチを始めました',
+  'offline->gachi': 'ガチマッチを始めました',
+  'offline->tag': 'タッグマッチを始めました',
+  'offline->private': 'プライベートマッチを始めました',
   'offline->playing': 'Splatoonを起動しました',
   'offline->online': 'オンラインになりました',
   'offline->offline': false
