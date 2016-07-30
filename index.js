@@ -1,3 +1,5 @@
+'use strict'
+
 const FileCookieStore = require('tough-cookie-filestore')
 const _request = require('request-promise')
 const cheerio = require('cheerio')
@@ -190,7 +192,7 @@ function postFriendStatsToSlack(friendStats) {
   const maxAttachments = 20
   const friendStatGroups = []
   const n = Math.ceil(friendStats.length / maxAttachments)
-  for (var i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++) {
     friendStatGroups.push(
       friendStats.slice(
         i * maxAttachments,
@@ -199,7 +201,7 @@ function postFriendStatsToSlack(friendStats) {
     )
   }
 
-  var p = undefined
+  let p = undefined
   friendStatGroups.forEach(function (fsg) {
     if (p) {
       p = p.then(function () {
