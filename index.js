@@ -59,24 +59,62 @@ function crawlOnlineFriendList(onError) {
   console.log('INFO', 'Crawling')
   return request('https://splatoon.nintendo.net/friend_list/index.json').then(function (body) {
     console.log('INFO', 'Posting')
-    const friends = JSON.parse(body)
-    updateLastFriends(friends)
-    slack.chat.postMessage({
-      token: config.token,
-      channel: config.channel,
-      username: config.username,
-      icon_emoji: config.icon_emoji,
-      text: formatFriends(friends)
-    }, function (err, data) {
-      if (err) {
-        return Promise.reject([
-          'ERROR: Failed to post a message to Slack.',
-          err
-        ])
-      }
-      console.log('INFO', 'Done')
-    })
+    const currentFriends = JSON.parse(body)
+    const freshFriends = compareFriends(currentFriends, lastFriends)
+
+    updateLastFriends(currentFriends)
+    if (freshFriends.length >= 1) {
+      slack.chat.postMessage({
+        token: config.token,
+        channel: config.channel,
+        username: config.username,
+        icon_emoji: config.icon_emoji,
+        text: formatFriends(freshFriends)
+      }, function (err, data) {
+        if (err) {
+          return Promise.reject([
+            'ERROR: Failed to post a message to Slack.',
+            err
+          ])
+        }
+        console.log('INFO', 'Done')
+      })
+    } else {
+      console.log('INFO', 'Nothing has changed')
+    }
   })
+}
+
+function compareFriends(currentFriends, lastFriends) {
+  const resultingFriends = []
+  const currentFriendMap = toMap(currentFriends, 'hashed_id')
+  const lastFriendMap = toMap(lastFriends, 'hashed_id')
+
+  currentFriends.forEach(function (cf) {
+    const lf = lastFriendMap[cf.hashed_id]
+    if (!lf || lf.mode != cf.mode) {
+      resultingFriends.push(cf)
+    }
+  })
+
+  lastFriends.forEach(function (lf) {
+    const cf = currentFriendMap[lf.hashed_id]
+    if (!cf) {
+      resultingFriends.push(lf)
+    }
+  })
+
+  return resultingFriends
+}
+
+function toMap(xs, key) {
+  const map = {}
+
+  xs.forEach(function (x) {
+    map[x[key]] = x
+  })
+
+  return map
 }
 
 function updateLastFriends(friends) {
@@ -92,13 +130,7 @@ function formatFriends(friends) {
     const oldMode = 'offline'  // TODO
     const modeTrans = oldMode + '->' + f.mode
     const phrase = phraseTable[modeTrans]
-    if (phrase !== false) {
-      return f.mii_name + 'が' + (phrase || modeTrans)
-    } else {
-      return false
-    }
-  }).filter(function (text) {
-    return text
+    return f.mii_name + 'が' + (phrase || modeTrans)
   }).join('\n')
 }
 
