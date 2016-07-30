@@ -64,22 +64,7 @@ function crawlOnlineFriendList(onError) {
 
     updateLastFriends(currentFriends)
     if (freshFriendStats.length >= 1) {
-      slack.chat.postMessage({
-        token: config.token,
-        channel: config.channel,
-        username: config.username,
-        icon_emoji: config.icon_emoji,
-        text: areThereHotFriends(freshFriendStats) ? '<!channel>' : '',
-        attachments: formatFriendStats(freshFriendStats)
-      }, function (err, data) {
-        if (err) {
-          return Promise.reject([
-            'ERROR: Failed to post a message to Slack.',
-            err
-          ])
-        }
-        console.log('INFO', 'Done')
-      })
+      postFriendStatsToSlack(freshFriendStats)
     } else {
       console.log('INFO', 'Nothing has changed')
     }
@@ -196,6 +181,25 @@ const phraseTable = {
   'offline->playing': 'Splatoonを起動しました',
   'offline->online': 'オンラインになりました',
   'offline->offline': false
+}
+
+function postFriendStatsToSlack(friendStats) {
+  slack.chat.postMessage({
+    token: config.token,
+    channel: config.channel,
+    username: config.username,
+    icon_emoji: config.icon_emoji,
+    text: areThereHotFriends(friendStats) ? '<!channel>' : '',
+    attachments: formatFriendStats(friendStats)
+  }, function (err, data) {
+    if (err) {
+      return Promise.reject([
+        'ERROR: Failed to post a message to Slack.',
+        err
+      ])
+    }
+    console.log('INFO', 'Done')
+  })
 }
 
 crawlOnlineFriendList()
