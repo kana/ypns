@@ -58,16 +58,22 @@ function signIn() {
 function crawlOnlineFriendList(onError) {
   console.log('INFO', 'Crawling')
   return request('https://splatoon.nintendo.net/friend_list/index.json').then(function (body) {
-    console.log('INFO', 'Posting')
     const currentFriends = JSON.parse(body)
     const freshFriendStats = compareFriends(currentFriends, lastFriends)
 
     updateLastFriends(currentFriends)
     if (freshFriendStats.length >= 1) {
-      postFriendStatsToSlack(freshFriendStats)
+      console.log('INFO', 'Posting')
+      return postFriendStatsToSlack(freshFriendStats)
     } else {
       console.log('INFO', 'Nothing has changed')
     }
+  })
+  .catch(function (error) {
+    console.log('ERROR', 'Failed to post to Slack', error)
+  })
+  .then(function () {
+    console.log('INFO', 'Done')
   })
 }
 
@@ -184,21 +190,21 @@ const phraseTable = {
 }
 
 function postFriendStatsToSlack(friendStats) {
-  slack.chat.postMessage({
-    token: config.token,
-    channel: config.channel,
-    username: config.username,
-    icon_emoji: config.icon_emoji,
-    text: areThereHotFriends(friendStats) ? '<!channel>' : '',
-    attachments: formatFriendStats(friendStats)
-  }, function (err, data) {
-    if (err) {
-      return Promise.reject([
-        'ERROR: Failed to post a message to Slack.',
-        err
-      ])
-    }
-    console.log('INFO', 'Done')
+  return new Promise(function (onFullfillment, onRejection) {
+    slack.chat.postMessage({
+      token: config.token,
+      channel: config.channel,
+      username: config.username,
+      icon_emoji: config.icon_emoji,
+      text: areThereHotFriends(friendStats) ? '<!channel>' : '',
+      attachments: formatFriendStats(friendStats)
+    }, function (err, data) {
+      if (err) {
+        onRejection(err)
+      } else {
+        onFullfillment(data)
+      }
+    })
   })
 }
 
