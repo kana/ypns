@@ -69,9 +69,6 @@ function crawlOnlineFriendList(onError) {
       console.log('INFO', 'Nothing has changed')
     }
   })
-  .catch(function (error) {
-    console.log('ERROR', 'Failed to post to Slack', error)
-  })
   .then(function () {
     console.log('INFO', 'Done')
   })
@@ -190,6 +187,24 @@ const phraseTable = {
 }
 
 function postFriendStatsToSlack(friendStats) {
+  const maxAttachments = 20
+  const friendStatGroups = []
+  const n = Math.ceil(friendStats.length / maxAttachments)
+  for (var i = 0; i < n; i++) {
+    friendStatGroups.push(
+      friendStats.slice(
+        i * maxAttachments,
+        (i + 1) * maxAttachments
+      )
+    )
+  }
+
+  return Promise.all(friendStatGroups.map(_postFriendStatsToSlack)).catch(function (error) {
+    console.log('ERROR', 'Failed to post to Slack', error)
+  })
+}
+
+function _postFriendStatsToSlack(friendStats) {
   return new Promise(function (onFullfillment, onRejection) {
     slack.chat.postMessage({
       token: config.token,
