@@ -22,6 +22,15 @@ if (!existsFile(cookiePath)) {
 const jar = _request.jar(new FileCookieStore(cookiePath))
 const request = _request.defaults({jar: jar, followAllRedirects: true})
 
+const lastFriendsPath = './last-friends.json'
+const lastFriends = (function () {
+  if (existsFile(lastFriendsPath)) {
+    return require(lastFriendsPath)
+  } else {
+    return []
+  }
+})()
+
 function signIn() {
   console.log('INFO', 'Signing in')
   return request('https://splatoon.nintendo.net/users/auth/nintendo').then(function (body) {
@@ -51,6 +60,7 @@ function crawlOnlineFriendList(onError) {
   return request('https://splatoon.nintendo.net/friend_list/index.json').then(function (body) {
     console.log('INFO', 'Posting')
     const friends = JSON.parse(body)
+    updateLastFriends(friends)
     slack.chat.postMessage({
       token: config.token,
       channel: config.channel,
@@ -67,6 +77,10 @@ function crawlOnlineFriendList(onError) {
       console.log('INFO', 'Done')
     })
   })
+}
+
+function updateLastFriends(friends) {
+  fs.writeFile(lastFriendsPath, JSON.stringify(friends))
 }
 
 function formatFriends(friends) {
