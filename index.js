@@ -133,9 +133,13 @@ function formatFriendStats(friendStats) {
     const cf = s[0]
     const lf = s[1]
     const f = cf || lf
-    const modeTrans = (lf ? lf.mode : 'offline') + '->' + (cf ? cf.mode : 'offline')
+    const currentMode = (cf ? cf.mode : 'offline')
+    const lastMode = (lf ? lf.mode : 'offline')
+    const modeTrans = lastMode + '->' + currentMode
     const phrase = phraseTable[modeTrans] || modeTrans
+    const color = colorTable[currentMode] || '#ff0000'
     return {
+      color: color,
       title: f.mii_name,
       title_link: 'https://splatoon.nintendo.net/profile/' + f.hashed_id,
       thumb_url: f.mii_url,
@@ -143,6 +147,16 @@ function formatFriendStats(friendStats) {
       text: phrase
     }
   })
+}
+
+const colorTable = {
+  'regular': '#78f205',
+  'gachi': '#fc4106',
+  'tag': '#ff66aa',
+  'private': '#3366ff',
+  'playing': '#666666',
+  'online': '#999999',
+  'offline': '#eeeeee'
 }
 
 const phraseTable = {
