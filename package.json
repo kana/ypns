@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "forever": "forever start -c 'npm start' -o ~/.forever/ypns.log -e ~/.forever/ypns.error -a  --spinSleepTime 1000 --minUptime 1000 ./",
-    "stop": "forever stopall",
+    "forever": "while true; do { echo; date; npm start; } &>>~/.forever/ypns.log; sleep 300; done",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
