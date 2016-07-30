@@ -199,7 +199,18 @@ function postFriendStatsToSlack(friendStats) {
     )
   }
 
-  return Promise.all(friendStatGroups.map(_postFriendStatsToSlack)).catch(function (error) {
+  var p = undefined
+  friendStatGroups.forEach(function (fsg) {
+    if (p) {
+      p = p.then(function () {
+        _postFriendStatsToSlack(fsg)
+      })
+    } else {
+      p = _postFriendStatsToSlack(fsg)
+    }
+  })
+
+  return p.catch(function (error) {
     console.log('ERROR', 'Failed to post to Slack', error)
   })
 }
