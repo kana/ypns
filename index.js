@@ -69,7 +69,8 @@ function crawlOnlineFriendList(onError) {
         channel: config.channel,
         username: config.username,
         icon_emoji: config.icon_emoji,
-        text: formatFriendStats(freshFriendStats)
+        text: areThereHotFriends(freshFriendStats) ? '<!channel>' : '',
+        attachments: formatFriendStats(freshFriendStats)
       }, function (err, data) {
         if (err) {
           return Promise.reject([
@@ -121,20 +122,28 @@ function updateLastFriends(friends) {
   fs.writeFile(lastFriendsPath, JSON.stringify(friends))
 }
 
-function formatFriendStats(friendStats) {
-  const areThereHotFriends = friendStats.some(function (s) {
+function areThereHotFriends(friendStats) {
+  return friendStats.some(function (s) {
     const f = s[0] || s[1]
     return config.hotFriends.indexOf(f.hashed_id) !== -1
   })
+}
 
-  return (areThereHotFriends ? "<!channel>\n" : "") + friendStats.map(function (s) {
+function formatFriendStats(friendStats) {
+  return friendStats.map(function (s) {
     const cf = s[0]
     const lf = s[1]
     const f = cf || lf
     const modeTrans = (lf ? lf.mode : 'offline') + '->' + (cf ? cf.mode : 'offline')
-    const phrase = phraseTable[modeTrans]
-    return f.mii_name + 'が' + (phrase || modeTrans)
-  }).join('\n')
+    const phrase = phraseTable[modeTrans] || modeTrans
+    return {
+      title: f.mii_name,
+      title_link: 'https://splatoon.nintendo.net/profile/' + f.hashed_id,
+      thumb_url: f.mii_url,
+      fallback: phrase,
+      text: phrase
+    }
+  })
 }
 
 const phraseTable = {
