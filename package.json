@@ -15,6 +15,6 @@
     "request": "^2.74.0",
     "request-promise": "^4.0.2",
     "slack": "^7.5.7",
-    "tough-cookie-filestore": "0.0.1"
+    "tough-cookie-filestore": "git+https://github.com/kana/tough-cookie-filestore.git#sync-write"
   }
 }
