@@ -116,7 +116,9 @@ function textizeHotFriends(friendStats) {
   const hotFriends = friendStats.map(function (s) {
     return s[0]
   }).filter(function (cf) {
-    return cf && config.hotFriends.indexOf(cf.hashed_id) !== -1
+    // Keep friends who are playing Splatoon or who have turned on Wii U.
+    return cf && config.hotFriends.indexOf(cf.hashed_id) !== -1 &&
+      (cf.mode !== 'online' || !lf)
   })
 
   if (hotFriends.length) {
