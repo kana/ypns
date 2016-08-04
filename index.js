@@ -4,6 +4,7 @@ const FileCookieStore = require('tough-cookie-filestore')
 const _request = require('request-promise')
 const cheerio = require('cheerio')
 const config = require('./config.json')
+const dateformat = require('dateformat')
 const fs = require('fs')
 const slack = require('slack')
 
@@ -63,6 +64,7 @@ function crawlOnlineFriendList(onError) {
     const currentFriends = JSON.parse(body)
     const freshFriendStats = compareFriends(currentFriends, lastFriends)
 
+    logCurrentFriends(currentFriends)
     updateLastFriends(currentFriends)
     if (freshFriendStats.length >= 1) {
       console.log('INFO', 'Posting')
@@ -106,6 +108,22 @@ function toMap(xs, key) {
   })
 
   return map
+}
+
+function logCurrentFriends(friends) {
+  const now = new Date()
+  const yyyymmdd = dateformat(now, 'yyyymmdd')
+  const stripped = friends.map(function (f) {
+    return {
+      id: f.hashed_id,
+      name: f.mii_name,
+      mode: f.mode
+    }
+  })
+  fs.appendFile(
+    'friend-stats-' + yyyymmdd + '.log',
+    JSON.stringify([dateformat(now, 'yyyy-mm-dd HH:MM:ss'), stripped]) + "\n"
+  )
 }
 
 function updateLastFriends(friends) {
