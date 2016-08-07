@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "forever": "while true; do { echo; date; npm start; } 2>&1 | tee -a ypns.log; sleep 300; done",
+    "forever": "while true; do echo; date; npm start 2>,last.error; cat ,last.error | tee -a ypns.error; sleep 300; done",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
