@@ -39,7 +39,7 @@ function signIn() {
   return request('https://splatoon.nintendo.net/users/auth/nintendo').then(function (body) {
     const $ = cheerio.load(body)
     const form = $('input[value="https://splatoon.nintendo.net/users/auth/nintendo/callback"]').closest('form')
-    if (form.length == 0) {
+    if (form.length === 0) {
       // return Promise.reject('Invalid HTML: ' + body)
       return Promise.reject('Invalid HTML')
     }
@@ -85,7 +85,7 @@ function compareFriends(currentFriends, lastFriends) {
 
   currentFriends.forEach(function (cf) {
     const lf = lastFriendMap[cf.hashed_id]
-    if (!lf || lf.mode != cf.mode) {
+    if (!lf || lf.mode !== cf.mode) {
       resultingFriends.push([cf, lf])
     }
   })
