@@ -131,12 +131,8 @@ function updateLastFriends(friends) {
 }
 
 function textizeHotFriends(friendStats) {
-  const hotFriends = friendStats.map(function (s) {
+  const hotFriends = friendStats.filter(isHotFriendStat).map(function (s) {
     return s[0]
-  }).filter(function (cf) {
-    // Keep friends who are playing Splatoon or who have turned on Wii U.
-    return cf && config.hotFriends.indexOf(cf.hashed_id) !== -1 &&
-      (cf.mode !== 'online' || !lf)
   })
 
   if (hotFriends.length) {
@@ -146,6 +142,22 @@ function textizeHotFriends(friendStats) {
   } else {
     return ''
   }
+}
+
+function isHotFriendStat(s) {
+  const cf = s[0]
+  const lf = s[1]
+  const cmode = cf ? cf.mode : 'offline'
+  const lmode = lf ? lf.mode : 'offline'
+
+  if (cmode === 'offline' || config.hotFriends.indexOf(cf.hashed_id) === -1) {
+    return false
+  }
+
+  return lmode === 'offline' ||
+    lmode === 'online' ||
+    cmode === 'regular' ||
+    cmode === 'private'
 }
 
 function formatFriendStats(friendStats) {
